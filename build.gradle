@@ -1,0 +1,248 @@
+/**
+ * <p>Specifies the build & test steps for the Traces Generator.</p>
+ * @author Carlos L. Cuenca
+ * @version 1.0.0
+ * @since 0.1.0
+ */
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Plugins, Repositories, & Language Settings                                                                      **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+plugins {
+
+    id 'java'
+
+}
+
+repositories {
+
+    mavenCentral()
+
+}
+
+java {
+
+    toolchain {
+
+        languageVersion.set(JavaLanguageVersion.of(17))
+
+    }
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Package Info                                                                                                    **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+group 'dev.clcuenca'
+version '0.1.0'
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Dependencies                                                                                                    **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+dependencies {}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Source Sets                                                                                                     **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Specifies the source sets corresponding to the production & test code.</p>
+ */
+sourceSets {
+
+    /// ----------------------
+    /// Production Source Sets
+
+    main {
+        java {
+            srcDirs 'src/main/java/'
+        }
+        compileClasspath = files(['lib/asm-all-5.2.jar',
+                                  'lib/ST-4.0.7.jar',
+                                  'lib/jflex-1.8.2.jar',
+                                  'lib/cup-11b.jar',
+                                  'lib/antlr4-4.13.0.jar',
+                                  'lib/antlr4-runtime-4.13.0.jar',
+                                  'lib/antlr-runtime-3.5.3.jar',
+                                  'lib/icu4j-72.1.jar',
+                                  'lib/org.abego.treelayout.core-1.0.3.jar',
+                                  'lib/ST4-4.3.4.jar'])
+        runtimeClasspath = files(['lib/jflex-1.8.2.jar',
+                                  'lib/cup-11b.jar',
+                                  'lib/antlr4-4.13.0.jar',
+                                  'lib/antlr4-runtime-4.13.0.jar',
+                                  'lib/antlr-runtime-3.5.3.jar',
+                                  'lib/icu4j-72.1.jar',
+                                  'lib/org.abego.treelayout.core-1.0.3.jar',
+                                  'lib/ST4-4.3.4.jar'])
+    }
+
+    /// ----------------
+    /// Test Source Sets
+
+    test {
+        java {
+            srcDirs 'src/test/java/'
+        }
+        compileClasspath = files(['lib/opentest4j-1.2.0.jar',
+                                  'lib/junit-jupiter-5.8.1.jar',
+                                  'lib/junit-jupiter-api-5.8.1.jar',
+                                  'lib/junit-jupiter-engine-5.8.1.jar',
+                                  'lib/apiguardian-api-1.1.2.jar',
+                                  'lib/asm-all-5.2.jar',
+                                  'lib/ST-4.0.7.jar',
+                                  'lib/jflex-1.8.2.jar',
+                                  'lib/cup-11b.jar',
+                                  'lib/antlr4-4.13.0.jar',
+                                  'lib/antlr4-runtime-4.13.0.jar',
+                                  'lib/antlr-runtime-3.5.3.jar',
+                                  'lib/icu4j-72.1.jar',
+                                  'lib/or.abego.treelayout.core-1.0.3.jar',
+                                  'lib/ST4-4.3.4.jar',
+                                  sourceSets.main.java.classesDirectory])
+        runtimeClasspath = files([
+                'lib/opentest4j-1.2.0.jar',
+                'lib/junit-jupiter-5.8.1.jar',
+                'lib/junit-jupiter-api-5.8.1.jar',
+                'lib/junit-jupiter-engine-5.8.1.jar',
+                'lib/apiguardian-api-1.1.2.jar',
+                'lib/asm-all-5.2.jar',
+                'lib/ST-4.0.7.jar',
+                'lib/jflex-1.8.2.jar',
+                'lib/cup-11b.jar',
+                'lib/system-rules-1.19.0.jar',
+                'lib/antlr4-4.13.0.jar',
+                'lib/antlr4-runtime-4.13.0.jar',
+                'lib/antlr-runtime-3.5.3.jar',
+                'lib/icu4j-72.1.jar',
+                'lib/or.abego.treelayout.core-1.0.3.jar',
+                'lib/ST4-4.3.4.jar',
+                sourceSets.main.java.classesDirectory,
+                sourceSets.test.java.classesDirectory])
+
+    }
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Parser Task                                                                                                     **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Generates the GraphViz parser with the specified .g4 file.</p>
+ */
+tasks.register('parser', JavaExec) {
+
+    // Initialize the classpath, entry point, & arguments
+    classpath   = sourceSets.main.runtimeClasspath
+    mainClass   = 'org.antlr.v4.Tool'
+    args        = ['-package', 'dev.clcuenca.generated',
+                   '-listener',
+                   '-long-messages',
+                   '-visitor',
+                   'src/main/java/dev/clcuenca/generated/DOT.g4']
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Compile Task                                                                                                    **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Compiles the Traces Generator.</p>
+ */
+compileJava {
+
+    // Initialize the source input & classpath
+    source      = sourceSets.main.java.srcDirs
+    classpath   = sourceSets.main.compileClasspath
+
+    // Specify its' dependencies
+    dependsOn('parser')
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Test Compile Task                                                                                               **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Compiles the Traces Generator tests.</p>
+ */
+compileTestJava {
+
+    // Initialize the source input & classpath
+    source      = sourceSets.test.java.srcDirs
+    classpath   = sourceSets.test.compileClasspath
+
+    // Specify its' dependencies
+    dependsOn('compileJava')
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Test Execution Task                                                                                             **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Executes the Traces Generator tests.</p>
+ */
+test {
+
+    // Specify the classpath
+    classpath = sourceSets.test.runtimeClasspath
+
+    // Specify the settings
+    useJUnitPlatform()
+    maxHeapSize = '2G'
+
+    testLogging {
+
+        events "passed"
+
+    }
+
+    // Specify its' dependencies
+    dependsOn('compileTestJava')
+
+}
+
+/** --------------------------------------------------------------------------------------------------------------- **/
+/** Jar Build Task                                                                                                  **/
+/** --------------------------------------------------------------------------------------------------------------- **/
+
+/**
+ * <p>Builds the Traces.jar. Packages all pertinent dependencies.</p>
+ */
+jar {
+
+    // Set the manifest
+    manifest {
+
+        attributes('Implementation-Title': 'Traces Generator',
+                   'Implementation-Version': '0.1.0',
+                   'Main-Class': 'dev.clcuenca.TracesGenerator')
+
+    }
+
+    // Initialize the Duplicate strategy
+    duplicatesStrategy DuplicatesStrategy.WARN
+
+    // Update the input & dependencies
+    from sourceSets.main.java.classesDirectory
+    dependsOn sourceSets.main.compileClasspath
+
+    // Package all the required jars
+    from {
+
+        sourceSets.main.compileClasspath.findAll { it.name.endsWith('.jar') }.collect { zipTree(it) }
+
+    }
+
+    // Specify its' dependencies
+    dependsOn('test')
+
+}

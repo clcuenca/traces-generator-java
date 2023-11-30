@@ -1,0 +1,13 @@
+digraph G {
+  0 -> 2 [ label="write.0.0.0" ];
+  1 -> 6 [ label="τ" ];
+  1 -> 7 [ label="τ" ];
+  2 -> 5 [ label="ack.0.0" ];
+  3 -> 4 [ label="read.0.1.0" ];
+  4 -> 2 [ label="start_read.0.1" ];
+  5 -> 3 [ label="write.0.0.0" ];
+  6 -> 4 [ label="write.0.0.0" ];
+  7 -> 0 [ label="start_read.0.1" ];
+}
+
+// start state is 1
