@@ -606,9 +606,9 @@ public class TracesGenerator extends Phase.Listener {
      * @return Flag indicating if the program should terminate.
      */
     @TracesGeneratorOption(name = "min", description = "Sets the minimum depth to consider.")
-    private static boolean SetMinimum(final Integer minimumDepth) {
+    private static boolean SetMinimum(final String minimumDepth) {
 
-        GenerateCombinations.MinimumDepth = minimumDepth;
+        GenerateCombinations.MinimumDepth = Integer.parseInt(minimumDepth);
 
         // Return a flag indicating the execution should terminate
         return false;
@@ -621,9 +621,9 @@ public class TracesGenerator extends Phase.Listener {
      * @return Flag indicating if the program should terminate.
      */
     @TracesGeneratorOption(name = "max", description = "Sets the maximum depth to consider.")
-    private static boolean SetMaximum(final Integer maximumDepth) {
+    private static boolean SetMaximum(final String maximumDepth) {
 
-        GenerateCombinations.MaximumDepth = maximumDepth;
+        GenerateCombinations.MaximumDepth = Integer.parseInt(maximumDepth);
 
         // Return a flag indicating the execution should terminate
         return false;

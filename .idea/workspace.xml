@@ -5,40 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d42d2588-376a-4c8c-bb75-499b179b6401" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/generated/DOT.g4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/GenerateCombinations.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/ParseFile.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/Phase.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Algorithms.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/DirectedGraph.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Files.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Reflection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/SourceFile.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Strings.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/ALT_1.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/ALT_2.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/ALT_3.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/ALT_SPEC.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/CHAN_1.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/CHAN_2.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/CHAN_3.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/CHAN_4.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/GENERIC_CHANNEL.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/restricted-choice.csp.dot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/dot_files/test.dot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +82,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1701212343658</updated>
-      <workItem from="1701212344897" duration="16951000" />
+      <workItem from="1701212344897" duration="17299000" />
     </task>
     <servers />
   </component>
