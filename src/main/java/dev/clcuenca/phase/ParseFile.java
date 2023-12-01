@@ -53,9 +53,8 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String>
 
         final SourceFile sourceFile = this.getSourceFile();
 
-        System.out.println("Parsing File: " + sourceFile.getName());
+        ParserAssert.ParsingFile.Assert(this, sourceFile);
 
-        // Attempt to
         try {
 
             final DOTLexer dotLexer = new DOTLexer(fromFileName(sourceFile.getPath()));

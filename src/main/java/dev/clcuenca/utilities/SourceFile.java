@@ -2,8 +2,14 @@ package dev.clcuenca.utilities;
 
 import dev.clcuenca.phase.Phase;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>Encapsulates a ProcessJ source file that containing structures produced by compilation {@link Phase}s &
@@ -14,9 +20,6 @@ import java.util.*;
  * @since 0.1.0
  */
 public class SourceFile {
-
-    /// --------------
-    /// Private Fields
 
     /**
      * <p>The {@link Set} of {@link Phase} class objects the {@link SourceFile} has been processed through.</p>
@@ -33,13 +36,21 @@ public class SourceFile {
     private final File file;
 
     /**
+     * <p>The {@link Set} of {@link String} traces.</p>
+     * @since 0.1.0
+     * @see Set
+     * @see String
+     */
+    private final Set<String> traces;
+
+    /**
      * <p>The class object corresponding to the most recent {@link Phase} that operated or validated the
      * {@link SourceFile}.</p>
      * @since 0.1.0
      * @see Class
      * @see Phase
      */
-    private Class<? extends Phase> lastCompletedPhase ;
+    private Class<? extends Phase> lastCompletedPhase;
 
     /**
      * <p>Initially the result of the parsing phase. This instance gets transformed as it propagates through
@@ -48,6 +59,7 @@ public class SourceFile {
      * @see DirectedGraph
      */
     private DirectedGraph<String> directedGraph;
+
 
     /// ------------
     /// Constructors
@@ -59,9 +71,9 @@ public class SourceFile {
      */
     public SourceFile(final String inputPath) {
 
-        // Initialize the file & DirectedGraph
         this.completedPhases = new HashSet<>();
         this.file = new File(inputPath);
+        this.traces = new HashSet<>();
         this.directedGraph = null;
         this.lastCompletedPhase = null;
 
@@ -127,12 +139,54 @@ public class SourceFile {
 
     /**
      * <p>Mutates the current state of the {@link SourceFile}'s {@link DirectedGraph}.</p>
-     * @param compilation The {@link DirectedGraph} to set.
+     * @param directedGraph The {@link DirectedGraph} to set.
      * @since 0.1.0
      */
-    public final void setDirectedGraph(final DirectedGraph compilation) {
+    public final void setDirectedGraph(final DirectedGraph<String> directedGraph) {
 
-        if(compilation != null) this.directedGraph = compilation;
+        if(directedGraph != null) this.directedGraph = directedGraph;
+
+    }
+
+    /**
+     * <p>Aggregates the {@link String} trace to the {@link Set} of traces.</p>
+     * @param trace The {@link String} value of the trace to aggregate.
+     * @since 0.1.0
+     * @see String
+     */
+    public final boolean addTrace(final String trace) {
+
+        return this.traces.add(trace);
+
+    }
+
+    /**
+     * <p>Returns the {@link Set} of traces corresponding to the {@link SourceFile}.</p>
+     * @return {@link Set} of traces corresponding to the {@link SourceFile}.
+     * @since 0.1.0
+     */
+    public final Set<String> getTraces() {
+
+        return this.traces;
+
+    }
+
+    /**
+     * <p>Writes the {@link Set} of {@link String} traces contained in the {@link SourceFile} to file.</p>
+     * @throws IOException If the file write failed.
+     * @since 0.1.0
+     * @see Set
+     * @see String
+     */
+    public final void write() throws IOException {
+
+        final String path = this.getPath() + ".traces";
+        final BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path));
+
+        for(final String trace : this.traces)
+            bufferedWriter.write(trace + '\n');
+
+        bufferedWriter.close();
 
     }
 
@@ -149,28 +203,6 @@ public class SourceFile {
     }
 
     /**
-     * <p>Returns a flag indicating if the {@link SourceFile} is not bound to a {@link DirectedGraph}.</p>
-     * @return flag indicating if the {@link SourceFile} is not bound to a {@link DirectedGraph}.
-     * @since 0.1.0
-     */
-    public final boolean isNotBoundedToDirectedGraph() {
-
-        return this.directedGraph == null;
-
-    }
-
-    /**
-     * <p>Returns the name corresponding to the {@link SourceFile}.</p>
-     * @return {@link String} value of the name corresponding to the {@link SourceFile}.
-     * @since 0.1.0
-     */
-    public final String getName() {
-
-        return this.file.getName();
-
-    }
-
-    /**
      * <p>Returns the path corresponding to the {@link SourceFile}.</p>
      * @return {@link String} value of the path corresponding to the {@link SourceFile}.
      * @since 0.1.0
@@ -182,35 +214,11 @@ public class SourceFile {
     }
 
     /**
-     * <p>Retrieves {@link java.io.FileReader} corresponding with the {@link SourceFile}.</p>
-     * @return {@link java.io.FileReader} containing the contents of the {@link SourceFile}.
-     * @throws IOException if the {@link FileReader} failed to open the file.
-     * @since 0.1.0
-     */
-    public final FileReader getFileReader() throws IOException {
-
-        return new FileReader(this.file.getPath());
-
-    }
-
-    /**
-     * <p>Retrieves {@link java.io.FileInputStream} corresponding with the {@link SourceFile}.</p>
-     * @return {@link java.io.FileInputStream} containing the contents of the {@link SourceFile}.
-     * @throws IOException if the {@link java.io.FileInputStream} failed to open the file.
-     * @since 0.1.0
-     */
-    public final FileInputStream getFileInputStream() throws IOException {
-
-        return new FileInputStream(this.file.getPath());
-
-    }
-
-    /**
      * <p>Retrieves the {@link DirectedGraph} corresponding with the {@link SourceFile}.</p>
      * @return {@link DirectedGraph}
      * @since 0.1.0
      */
-    public final DirectedGraph getDirectedGraph() {
+    public final DirectedGraph<String> getDirectedGraph() {
 
         return this.directedGraph;
 

@@ -3,7 +3,6 @@ package dev.clcuenca;
 import dev.clcuenca.phase.GenerateCombinations;
 import dev.clcuenca.phase.ParseFile;
 import dev.clcuenca.phase.Phase;
-import dev.clcuenca.utilities.Files;
 import dev.clcuenca.utilities.SourceFile;
 import dev.clcuenca.utilities.Strings;
 
@@ -16,6 +15,12 @@ import java.util.*;
 import static dev.clcuenca.utilities.Files.RetrieveMatchingFilesListFrom;
 import static dev.clcuenca.utilities.Reflection.*;
 
+/**
+ * <p>Generates all unqiue traces from each tree combination chosen from a
+ * {@link dev.clcuenca.utilities.DirectedGraph}.</p>
+ * @author Carlos L. Cuenca
+ * @since 0.1.0
+ */
 public class TracesGenerator extends Phase.Listener {
 
     /**
@@ -122,6 +127,14 @@ public class TracesGenerator extends Phase.Listener {
      * @see PrintStream
      */
     private final static PrintStream ErrorStream = System.err;
+
+    static {
+
+        Phase.Listener.Info = TracesGenerator::Info;
+        Phase.Listener.Warning = TracesGenerator::Warn;
+        Phase.Listener.Error = TracesGenerator::Error;
+
+    }
 
     /**
      * <p>Reports the specified informative {@link String} using {@link TracesGenerator#InfoStream}.</p>
@@ -631,6 +644,20 @@ public class TracesGenerator extends Phase.Listener {
     }
 
     /**
+     * <p>{@link TracesGeneratorOption} that sets the flag indicating to display all generated traces.</p>
+     * @return Flag indicating if the program should terminate.
+     */
+    @TracesGeneratorOption(name = "showGeneratedTraces", description = "Print each unique generated trace.")
+    private static boolean ShowGeneratedTraces() {
+
+        GenerateCombinations.ShowGeneratedTraces = true;
+
+        // Return a flag indicating the execution should terminate
+        return false;
+
+    }
+
+    /**
      * <p>Execution entry point. Sets the {@link TracesGenerator} environment via {@link TracesGenerator#SetEnvironment(String[])}
      * with the specified arguments corresponding to the {@link Method}s annotated as {@link TracesGeneratorOption}. If an
      * argument that indicates the execution should terminate was specified, the compilation will not continue.
@@ -650,21 +677,24 @@ public class TracesGenerator extends Phase.Listener {
             // For each Source File
             for(final String filepath: TracesGenerator.IncludePaths) {
 
-                // Initialize the corresponding handle TODO: Handle clashes?
+                // Initialize the corresponding handle
                 final List<SourceFile> sourceFiles = SourceFilesAt(filepath, tracesGenerator);
 
                 for(final SourceFile sourceFile : sourceFiles) {
 
                     // Execute each remaining Phase
                     Phase phase;
-                    while ((phase = NextPhaseFor(sourceFile, tracesGenerator)) != null)
-                        phase.execute(sourceFile); // TODO: Check Errors here
+                    while (((phase = NextPhaseFor(sourceFile, tracesGenerator)) != null)
+                        && (tracesGenerator.getErrorList().isEmpty()))
+                        phase.execute(sourceFile);
+
+
+                    if(!tracesGenerator.getErrorList().isEmpty())
+                        break;
 
                 }
 
             }
-
-            // TODO: Write to File with working directory and extension in utf-8 encoding
 
         }
 

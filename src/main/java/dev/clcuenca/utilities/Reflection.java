@@ -2,7 +2,6 @@ package dev.clcuenca.utilities;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -10,32 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <p>Collection of reflection utility functions.</p>
+ * @author Carlos L. Cuenca
+ * @since 0.1.0
+ */
 public class Reflection {
-
-    /**
-     * <p>Returns a flag indicating if the specified constructor parameter types match the specified arguments
-     * in length & type.</p>
-     * @param constructorParameters The constructor parameters to check against
-     * @param arguments The arguments to check against
-     * @return Boolean flag indicating if the specified constructor parameter types match the specified argument types.
-     */
-    public static boolean ParameterTypesMatch(final Class<?>[] constructorParameters, final Object... arguments) {
-
-        // Initialize the preliminary result
-        boolean doMatch = ((constructorParameters != null) && (arguments != null))
-                && arguments.length == constructorParameters.length;
-
-        // Iterate through each type & check while the argument lists match
-        int index = 0; while((doMatch) && (index < constructorParameters.length)) {
-            doMatch = constructorParameters[index]
-                    .getTypeName()
-                    .equals(arguments[index++].getClass().getTypeName());
-        }
-
-        // Return the result
-        return doMatch;
-
-    }
 
     /**
      * <p>Instantiates a new instance of the specified class with the specified constructor arguments, if the
@@ -60,8 +39,14 @@ public class Reflection {
 
             try {
 
+                // To create the instance
+                constructor.setAccessible(true);
+
                 // Instantiate the result
                 result = constructor.newInstance(arguments);
+
+                // Set it back
+                constructor.setAccessible(false);
 
             } catch(final InstantiationException | IllegalAccessException | InvocationTargetException exception){
 
@@ -74,72 +59,18 @@ public class Reflection {
 
     }
 
-    public static <Type> boolean DoesDeclareField(final Type instance, final String fieldName) {
-
-        boolean doesDeclareField = true;
-
-        try {
-
-            instance.getClass().getDeclaredField(fieldName);
-
-        } catch(final NoSuchFieldException noSuchFieldException) {
-
-            doesDeclareField = false;
-
-        }
-
-        return doesDeclareField;
-
-    }
-
-    public static <Type> Object GetFieldValue(final Type instance, final String fieldName) {
-
-        // Initialize the result
-        Object result;
-
-        try {
-
-            // Retrieve the field
-            final Field field = instance.getClass().getDeclaredField(fieldName);
-
-            // Set accessible
-            field.setAccessible(true);
-
-            // Update the result
-            result = field.get(instance);
-
-        } catch(final NoSuchFieldException | IllegalAccessException exception) {
-
-            result = null;
-
-        }
-
-        // Return the field instance
-        return result;
-
-    }
-
-    public static <Type> void SetFieldValueOf(final Type instance, final String fieldName, final Object value) {
-
-        try {
-
-            // Retrieve the field
-            final Field field = instance.getClass().getDeclaredField(fieldName);
-
-            // Set accessible
-            field.setAccessible(true);
-
-            // Set the value
-            field.set(instance, value);
-
-        } catch(final NoSuchFieldException | IllegalAccessException exception) {
-
-            // Ignore
-
-        }
-
-    }
-
+    /**
+     * <p>Returns the {@link List} of {@link Method}s that are annotated with the specified annotation {@link Class}.</p>
+     * @param clazz The {@link Class} object to check.
+     * @param annotationTypeClass The annotation type {@link Class} to filter.
+     * @return {@link List} of {@link Method}s that are annotated with the specified annotation {@link Class}.
+     * @param <Type> Type variable corresponding the {@link Class} object.
+     * @param <AnnotationType> Type variable corresponding to the annotation {@link Class} type.
+     * @since 0.1.0
+     * @see Class
+     * @see List
+     * @see Method
+     */
     public static <Type, AnnotationType extends Annotation>
     List<Method> MethodsWithAnnotationOf(final Class<Type> clazz, final Class<AnnotationType> annotationTypeClass) {
 
@@ -149,6 +80,19 @@ public class Reflection {
 
     }
 
+    /**
+     * <p>Returns the {@link List} of all instances of the specified annotation {@link Class} declared in the specified
+     * {@link Class}.</p>
+     * @param clazz The {@link Class} to retrieve the {@link List} of {@link Annotation}s.
+     * @param annotationTypeClass The annotation {@link Class} to retrieve.
+     * @return {@link List} of all instances of the specified annotation {@link Class} declared in the specified.
+     * @param <Type> Type variable corresponding the {@link Class} object.
+     * @param <AnnotationType> Type variable corresponding to the annotation {@link Class} type.
+     * @since 0.1.0
+     * @see Annotation
+     * @see Class
+     * @see List
+     */
     public static <Type, AnnotationType extends Annotation>
     List<Annotation> DeclaredMethodAnnotations(final Class<Type> clazz, final Class<AnnotationType> annotationTypeClass) {
 
@@ -169,28 +113,5 @@ public class Reflection {
         return annotations;
 
     }
-
-    public static <Type, Check> boolean AreEqual(final Type instance, final Class<Check> check) {
-
-        // Initialize the preliminary result
-        boolean areEqual = (instance != null) && (check != null);
-
-        // If the preliminary result is valid
-        if(areEqual) {
-
-            // Initialize a handle to the class names
-            final String instanceName   = instance.getClass().getName();
-            final String checkName      = check.getName();
-
-            // Update the result
-            areEqual = instanceName.equals(checkName);
-
-        }
-
-        // Return the Result
-        return areEqual;
-
-    }
-
 
 }

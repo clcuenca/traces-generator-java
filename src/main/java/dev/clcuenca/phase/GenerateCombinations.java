@@ -3,10 +3,18 @@ package dev.clcuenca.phase;
 import dev.clcuenca.utilities.DirectedGraph;
 import dev.clcuenca.utilities.SourceFile;
 
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
+/**
+ * <p>{@link Phase} responsible for generating trace combinations from a specified {@link SourceFile}.
+ * This {@link Phase} generates all traces lexicographically and writes the resultant {@link SourceFile} in the
+ * same path as the original.</p>
+ * @author Carlos L. Cuenca
+ * @since 0.1.0
+ * @see Phase
+ * @see SourceFile
+ */
 public class GenerateCombinations extends Phase {
 
     /**
@@ -24,6 +32,12 @@ public class GenerateCombinations extends Phase {
     public static int MaximumDepth = -1;
 
     /**
+     * <p>Flag indicating if each unique generated trace should be output to the console.</p>
+     * @since 0.1.0
+     */
+    public static boolean ShowGeneratedTraces = false;
+
+    /**
      * <p>Initializes the {@link Phase} to its' default state with the specified {@link Listener}.</p>
      *
      * @param listener The {@link Listener} to bind to the {@link Phase}.
@@ -34,24 +48,30 @@ public class GenerateCombinations extends Phase {
         super(listener);
     }
 
+    /**
+     * <p>Executes the {@link GenerateCombinations} {@link Phase} that generates all combinations from the current
+     * {@link SourceFile}'s {@link DirectedGraph}.</p>
+     * @since 0.1.0
+     * @see Phase
+     * @see Phase.Error
+     * @see SourceFile
+     */
     @Override
-    protected void executePhase() throws Error {
-
-        System.out.println("Generating Combinations");
+    protected void executePhase() {
 
         final SourceFile sourceFile = this.getSourceFile();
         final DirectedGraph<String> directedGraph = sourceFile.getDirectedGraph();
 
-        final Set<String> traces = new HashSet<>();
+        GeneratorAssert.GeneratingCombinations.Assert(this, sourceFile);
 
         if((MinimumDepth == -1) || (MaximumDepth == -1)) {
 
             directedGraph.treeCombinations((final List<String> combination) -> {
 
-                final String combinationString = combination.toString();
+                final String trace = String.join(" ", combination);
 
-                if(traces.add(combinationString))
-                    System.out.println(combinationString);
+                if(sourceFile.addTrace(trace) && GenerateCombinations.ShowGeneratedTraces)
+                    GeneratorAssert.Generated.Assert(this, sourceFile, trace);
 
             });
 
@@ -61,19 +81,31 @@ public class GenerateCombinations extends Phase {
 
                 directedGraph.treeCombinations((final List<String> combination) -> {
 
-                    final String combinationString = combination.toString();
+                    final String trace = String.join(" ", combination);
 
-                    if(traces.add(combinationString))
-                        System.out.println(combinationString);
+                    if(sourceFile.addTrace(trace) && GenerateCombinations.ShowGeneratedTraces)
+                        GeneratorAssert.Generated.Assert(this, sourceFile, trace);
 
                 }, MinimumDepth, MaximumDepth);
 
             } catch(final DirectedGraph.InvalidMaximumDepthException
                           | DirectedGraph.InvalidMinimumDepthException exception) {
 
-                System.out.println(exception.getMessage());
+                GeneratorAssert.InvalidDepth.Assert(this, sourceFile);
 
             }
+
+        }
+
+        GeneratorAssert.GeneratedTotal.Assert(this, sourceFile, String.valueOf(sourceFile.getTraces().size()));
+
+        try {
+
+            sourceFile.write();
+
+        } catch(final IOException ioException) {
+
+            GeneratorAssert.FileWriteFailed.Assert(this, sourceFile);
 
         }
 

@@ -7,6 +7,13 @@
     <list default="true" id="d42d2588-376a-4c8c-bb75-499b179b6401" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/GenerateCombinations.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/GenerateCombinations.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/ParseFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/ParseFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/Phase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/phase/Phase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Files.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Files.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Reflection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Reflection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/SourceFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/SourceFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Strings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/clcuenca/utilities/Strings.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,22 +89,11 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1701212343658</updated>
-      <workItem from="1701212344897" duration="17299000" />
+      <workItem from="1701212344897" duration="25660000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/dev/clcuenca/TracesGenerator.java</url>
-          <line>625</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

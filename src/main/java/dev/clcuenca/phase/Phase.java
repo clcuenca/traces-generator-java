@@ -1,6 +1,5 @@
 package dev.clcuenca.phase;
 
-import dev.clcuenca.utilities.DirectedGraph;
 import dev.clcuenca.utilities.SourceFile;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public abstract class Phase {
      * @see Phase.Error
      * @since 0.1.0
      */
-    abstract protected void executePhase() throws Phase.Error;
+    abstract protected void executePhase();
 
     /**
      * <p>Returns the {@link Listener} instance bound to the {@link Phase}.</p>
@@ -79,30 +78,6 @@ public abstract class Phase {
     }
 
     /**
-     * <p>Returns a valid {@link DirectedGraph} instance from the {@link SourceFile}. This method successfully
-     * returns if the {@link SourceFile} contains a valid {@link DirectedGraph}.</p>
-     * @return {@link DirectedGraph} corresponding to the {@link SourceFile}.
-     * @since 0.1.0
-     */
-    protected final DirectedGraph retrieveValidDirectedGraph() {
-
-        // Retrieve the ProcessJ Source File
-        final SourceFile sourceFile = this.getSourceFile();
-
-        // If a null value was specified for the ProcessJ source file
-        if(sourceFile == null)
-            FatalAssert.NullProcessJSourceFile.Assert(this);
-
-            // If the processJ source file does not contain a DirectedGraph
-        else if(sourceFile.isNotBoundedToDirectedGraph())
-            FatalAssert.NullDirectedGraph.Assert(this);
-
-        // Return the compilation
-        return sourceFile.getDirectedGraph();
-
-    }
-
-    /**
      * <p>Executes the {@link Phase}. Invokes the {@link Phase}'s specific implementation.</p>
      * @throws Phase.Error If a null value was specified for the {@link SourceFile} or {@link Listener}.
      * @since 0.1.0
@@ -115,7 +90,7 @@ public abstract class Phase {
 
             // If a null value was specified for the ProcessJ source file
         else if(sourceFile == null)
-            FatalAssert.NullProcessJSourceFile.Assert(this);
+            FatalAssert.NullSourceFile.Assert(this);
 
             // If the file has not been completed by this
         else if(!sourceFile.hasBeenCompletedBy(this)) {
@@ -136,10 +111,25 @@ public abstract class Phase {
 
     }
 
+    /**
+     * <p>Base class that is used to emit a message to the user.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @see Exception
+     */
     public static class Message extends Exception {
 
+        /**
+         * <p>The {@link Phase} where the {@link Message} originated from.</p>
+         * @since 0.1.0
+         * @see Phase
+         */
         private final Phase phase;
 
+        /**
+         * <p>Initializes the {@link Message} to its' default state with the specified {@link Phase}.</p>
+         * @param phase The {@link Phase} where the {@link Message} originated from.
+         */
         protected Message(final Phase phase) {
 
             // Fail if the Message was given an invalid Phase
@@ -149,12 +139,24 @@ public abstract class Phase {
 
         }
 
+        /**
+         * <p>Returns the {@link Phase} where the {@link Message} originated from.</p>
+         * @return {@link Phase} where the {@link Message} originated from.
+         * @since 0.1.0
+         * @see Phase
+         */
         protected final Phase getPhase() {
 
             return this.phase;
 
         }
 
+        /**
+         * <p>Returns the {@link SourceFile} that was being processed at the time the {@link Message} was emitted.</p>
+         * @return {@link SourceFile} that was being processed at the time the {@link Message} was emitted.
+         * @since 0.1.0
+         * @see Phase
+         */
         protected final SourceFile getSourceFile() {
 
             return this.phase.getSourceFile();
@@ -163,16 +165,24 @@ public abstract class Phase {
 
     }
 
+    /**
+     * <p>{@link Message} that represents a {@link Phase.Info} when executing a {@link Phase}.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @version 1.0.0
+     * @see Message
+     * @see Phase
+     */
     public static class Info extends Message {
 
         /**
-         * <p>Constructs an {@link Phase.Error} from the specified class object, {@link Phase}, & variadic parameters.
-         * Once the {@link Phase.Error} is instantiated, this method will notify the specified {@link Phase}'s
-         * {@link Phase.Listener} of the {@link Phase.Error}</p>
-         * @param messageType The class object corresponding to the {@link Phase.Error} to instantiate.
+         * <p>Constructs an {@link Phase.Info} from the specified class object, {@link Phase}, & variadic parameters.
+         * Once the {@link Phase.Info} is instantiated, this method will notify the specified {@link Phase}'s
+         * {@link Phase.Listener} of the {@link Phase.Info}</p>
+         * @param messageType The class object corresponding to the {@link Phase.Info} to instantiate.
          * @param phase The {@link Phase} where the assertion was raised.
-         * @param parameters Any parameters that pertain to the {@link Phase.Error}.
-         * @param <MessageType> Parameteric Type of the {@link Phase.Error}.
+         * @param parameters Any parameters that pertain to the {@link Phase.Info}.
+         * @param <MessageType> Parameteric Type of the {@link Phase.Info}.
          */
         protected static <MessageType extends Info> void Assert(final Class<MessageType> messageType,
                                                                 final Phase phase,
@@ -183,20 +193,64 @@ public abstract class Phase {
 
         }
 
+        /**
+         * <p>Initializes the {@link Phase.Info} to its' default state with the specified {@link Phase}.</p>
+         * @param phase The {@link Phase} corresponding to the {@link Phase.Info}.
+         * @since 0.1.0
+         */
         protected Info(final Phase phase) {
             super(phase);
         }
 
     }
 
+    /**
+     * <p>{@link Message} that represents a {@link Phase.Warning} when executing a {@link Phase}.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @version 1.0.0
+     * @see Message
+     * @see Phase
+     */
     public static class Warning extends Message {
 
+        /**
+         * <p>Constructs an {@link Phase.Warning} from the specified class object, {@link Phase}, & variadic parameters.
+         * Once the {@link Phase.Warning} is instantiated, this method will notify the specified {@link Phase}'s
+         * {@link Phase.Listener} of the {@link Phase.Warning}</p>
+         * @param messageType The class object corresponding to the {@link Phase.Warning} to instantiate.
+         * @param phase The {@link Phase} where the assertion was raised.
+         * @param parameters Any parameters that pertain to the {@link Phase.Warning}.
+         * @param <MessageType> Parameteric Type of the {@link Phase.Warning}.
+         */
+        protected static <MessageType extends Info> void Assert(final Class<MessageType> messageType,
+                                                                final Phase phase,
+                                                                final Object... parameters) {
+
+            // Notify the listener
+            phase.getListener().notify(NewInstanceOf(messageType, phase, parameters));
+
+        }
+
+        /**
+         * <p>Initializes the {@link Phase.Warning} to its' default state with the specified {@link Phase}.</p>
+         * @param phase The {@link Phase} corresponding to the {@link Phase.Warning}.
+         * @since 0.1.0
+         */
         protected Warning(final Phase phase) {
             super(phase);
         }
 
     }
 
+    /**
+     * <p>{@link Message} that represents a {@link Phase.Error} when executing a {@link Phase}.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @version 1.0.0
+     * @see Message
+     * @see Phase
+     */
     public static class Error extends Message {
 
         /**
@@ -217,16 +271,13 @@ public abstract class Phase {
 
         }
 
+        /**
+         * <p>Initializes the {@link Phase.Error} to its' default state with the specified {@link Phase}.</p>
+         * @param phase The {@link Phase} corresponding to the {@link Phase.Error}.
+         * @since 0.1.0
+         */
         protected Error(final Phase phase) {
             super(phase);
-        }
-
-        public final Error commit() {
-
-            this.getPhase().getListener().notify(this);
-
-            return this;
-
         }
 
     }
@@ -245,31 +296,37 @@ public abstract class Phase {
 
         /**
          * <p>The info logging method that handles informative messages.</p>
+         * @since 0.1.0
          */
         public static LogInfo Info = null;
 
         /**
          * <p>The warning logging method that handles warning messages.</p>
+         * @since 0.1.0
          */
         public static LogWarning Warning = null;
 
         /**
          * <p>The error logging method that handles error messages.</p>
+         * @since 0.1.0
          */
         public static LogError Error = null;
 
         /**
          * <p>{@link List} containing all of the {@link Phase}'s informative messages.</p>
+         * @since 0.1.0
          */
         private final List<Phase.Info> infoList;
 
         /**
          * <p>{@link List} containing all of the {@link Phase}'s warning messages.</p>
+         * @since 0.1.0
          */
         private final List<Phase.Warning> warningList;
 
         /**
          * <p>{@link List} containing all of the {@link Phase}'s error messages.</p>
+         * @since 0.1.0
          */
         private final List<Phase.Error> errorList;
 
@@ -279,9 +336,9 @@ public abstract class Phase {
          */
         public Listener() {
 
-            this.infoList       = new ArrayList<>();
-            this.warningList    = new ArrayList<>();
-            this.errorList      = new ArrayList<>();
+            this.infoList = new ArrayList<>();
+            this.warningList = new ArrayList<>();
+            this.errorList = new ArrayList<>();
 
         }
 
@@ -330,7 +387,7 @@ public abstract class Phase {
         protected final void notify(final Phase.Info phaseInfo) {
 
             // Simply log the info
-            Info.Log(phaseInfo.getSourceFile() + ": " + phaseInfo.getMessage());
+            Info.Log(phaseInfo.getSourceFile().getPath() + ": " + phaseInfo.getMessage());
 
             // Push the info
             this.push(phaseInfo);
@@ -373,7 +430,7 @@ public abstract class Phase {
          * <p>Retrieves the {@link Listener}'s collection of {@link Phase.Info} messages.</p>
          * @since 0.1.0
          */
-        protected final List<Phase.Info> getInfoList() {
+        public final List<Phase.Info> getInfoList() {
 
             return this.infoList;
 
@@ -383,7 +440,7 @@ public abstract class Phase {
          * <p>Retrieves the {@link Listener}'s collection of {@link Phase.Warning} messages.</p>
          * @since 0.1.0
          */
-        protected final List<Phase.Warning> getWarningList() {
+        public final List<Phase.Warning> getWarningList() {
 
             return this.warningList;
 
@@ -393,7 +450,7 @@ public abstract class Phase {
          * <p>Retrieves the {@link Listener}'s collection of {@link Phase.Error} messages.</p>
          * @since 0.1.0
          */
-        protected final List<Phase.Error> getErrorList() {
+        public final List<Phase.Error> getErrorList() {
 
             return this.errorList;
 
@@ -402,6 +459,8 @@ public abstract class Phase {
         /**
          * <p>Defines the {@link Phase.Listener} info logging method signature for the stream responsible for outputting
          * informative messages.</p>
+         * @author Carlos L. Cuenca
+         * @since 0.1.0
          */
         @FunctionalInterface
         public interface LogInfo {
@@ -413,6 +472,8 @@ public abstract class Phase {
         /**
          * <p>Defines the {@link Phase.Listener} warning logging method signature for the stream responsible for
          * outputting warning messages.</p>
+         * @author Carlos L. Cuenca
+         * @since 0.1.0
          */
         @FunctionalInterface
         public interface LogWarning {
@@ -424,6 +485,8 @@ public abstract class Phase {
         /**
          * <p>Defines the {@link Phase.Listener} error logging method signature for the stream responsible for
          * outputting error messages.</p>
+         * @author Carlos L. Cuenca
+         * @since 0.1.0
          */
         @FunctionalInterface
         public interface LogError {
@@ -434,6 +497,13 @@ public abstract class Phase {
 
     }
 
+    /**
+     * <p>Set of {@link Message}s that can be emitted during execution of a {@link Phase} that has failed.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @see Message
+     * @see Phase
+     */
     private static class FatalAssert {
 
         /**
@@ -476,15 +546,15 @@ public abstract class Phase {
          * @version 1.0.0
          * @since 0.1.0
          */
-        private static class NullProcessJSourceFile extends Error {
+        private static class NullSourceFile extends Error {
 
             /**
-             * <p>Emits the {@link NullProcessJSourceFile} to its' specified {@link Listener}.</p>
+             * <p>Emits the {@link NullSourceFile} to its' specified {@link Listener}.</p>
              * @param phase The invoking {@link Phase}.
              */
             protected static void Assert(final Phase phase) {
 
-                Error.Assert(NullProcessJSourceFile.class, phase);
+                Error.Assert(NullSourceFile.class, phase);
 
             }
 
@@ -495,46 +565,7 @@ public abstract class Phase {
              * @see Error
              * @since 0.1.0
              */
-            protected NullProcessJSourceFile(final Phase culprit) {
-                super(culprit);
-            }
-
-        }
-
-        /**
-         * <p>{@link Phase.Error} to be emitted if the {@link Phase}'s corresponding {@link DirectedGraph}
-         * is not specified.</p>
-         * @see Phase
-         * @see Phase.Error
-         * @version 1.0.0
-         * @since 0.1.0
-         */
-        private static class NullDirectedGraph extends Error {
-
-            /// ------------------------
-            /// Protected Static Methods
-
-            /**
-             * <p>Emits the {@link NullDirectedGraph} to its' specified {@link Listener}.</p>
-             * @param phase The invoking {@link Phase}.
-             */
-            protected static void Assert(final Phase phase) {
-
-                Error.Assert(NullDirectedGraph.class, phase);
-
-            }
-
-            /// ------------
-            /// Constructors
-
-            /**
-             * <p>Constructs the {@link NullDirectedGraph} to its default state.</p>
-             * @param culprit The {@link Phase} instance that raised the error.
-             * @see Phase
-             * @see Error
-             * @since 0.1.0
-             */
-            protected NullDirectedGraph(final Phase culprit) {
+            protected NullSourceFile(final Phase culprit) {
                 super(culprit);
             }
 
@@ -542,7 +573,65 @@ public abstract class Phase {
 
     }
 
+    /**
+     * <p>Set of parsing {@link Message}s that can be emitted during execution of a {@link Phase}.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @see Message
+     * @see Phase
+     */
     protected static class ParserAssert {
+
+        /**
+         * <p>{@link Phase.Info} to be emitted when a {@link SourceFile} is about to be parsed.</p>
+         * @see Phase
+         * @see Phase.Info
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        protected static class ParsingFile extends Info {
+
+            /**
+             * <p>Emits the {@link ParserAssert.ParsingFile}.</p>
+             * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
+             */
+            protected static void Assert(final Phase phase, final SourceFile sourceFile) {
+
+                phase.getListener().notify(NewInstanceOf(ParserAssert.ParsingFile.class, phase, sourceFile));
+
+            }
+
+            /**
+             * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
+
+            /**
+             * <p>Constructs the {@link ParsingFile} to its default state.</p>
+             * @param culprit The {@link Phase} instance that raised the error.
+             * @see Phase
+             * @see Info
+             * @since 0.1.0
+             */
+            protected ParsingFile(final Phase culprit, final Object sourceFile) {
+                super(culprit);
+
+                this.invalidFile = (SourceFile) sourceFile;
+
+            }
+
+            @Override
+            public final String getMessage() {
+
+                return "Parsing";
+
+            }
+
+        }
 
         /**
          * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} failed to open during
@@ -554,29 +643,24 @@ public abstract class Phase {
          */
         protected static class FileOpenFailure extends Error {
 
-            /// ------------------------
-            /// Protected Static Methods
-
             /**
-             * <p>Emits the {@link FatalAssert.NullListener}.</p>
+             * <p>Emits the {@link ParserAssert.FileOpenFailure}.</p>
              * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
              */
             protected static void Assert(final Phase phase, final SourceFile sourceFile) {
 
-                Error.Assert(FatalAssert.NullListener.class, phase);
+                Error.Assert(FatalAssert.NullListener.class, phase, sourceFile);
 
             }
 
-            /// --------------
-            /// Private Fields
-
             /**
              * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
              */
             private final SourceFile invalidFile;
-
-            /// ------------
-            /// Constructors
 
             /**
              * <p>Constructs the {@link FileOpenFailure} to its default state.</p>
@@ -603,29 +687,24 @@ public abstract class Phase {
          */
         protected static class ParserFailure extends Error {
 
-            /// ------------------------
-            /// Protected Static Methods
-
             /**
              * <p>Emits the {@link ParserFailure}.</p>
              * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
              */
             protected static void Assert(final Phase phase, final SourceFile sourceFile) {
 
-                Error.Assert(ParserFailure.class, phase);
+                Error.Assert(ParserFailure.class, phase, sourceFile);
 
             }
 
-            /// --------------
-            /// Private Fields
-
             /**
              * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
              */
             private final SourceFile invalidFile;
-
-            /// ------------
-            /// Constructors
 
             /**
              * <p>Constructs the {@link ParserFailure} to its default state.</p>
@@ -643,202 +722,298 @@ public abstract class Phase {
 
         }
 
+    }
+
+    /**
+     * <p>Set of combination generation {@link Message}s that can be emitted during execution of a {@link Phase}.</p>
+     * @author Carlos L. Cuenca
+     * @since 0.1.0
+     * @see Message
+     * @see Phase
+     */
+    protected static class GeneratorAssert {
+
         /**
-         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile}'s Parser encountered an
-         * unexpected end-of-file.</p>
+         * <p>{@link Phase.Info} to be emitted when a {@link SourceFile} is about to be parsed.</p>
          * @see Phase
-         * @see Phase.Error
+         * @see Phase.Info
          * @version 1.0.0
          * @since 0.1.0
          */
-        protected static class UnexpectedEndOfFile extends Error {
-
-            /// ------------------------
-            /// Protected Static Methods
+        protected static class GeneratingCombinations extends Info {
 
             /**
-             * <p>Emits the {@link UnexpectedEndOfFile}.</p>
+             * <p>Emits the {@link GeneratorAssert.GeneratingCombinations}.</p>
              * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
              */
-            protected static void Assert(final Phase phase, final int line) {
+            protected static void Assert(final Phase phase, final SourceFile sourceFile) {
 
-                Error.Assert(UnexpectedEndOfFile.class, phase, line);
+                phase.getListener().notify(NewInstanceOf(GeneratorAssert.GeneratingCombinations.class, phase, sourceFile));
 
             }
-
-            /// --------------
-            /// Private Fields
 
             /**
              * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
              */
-            private final int line;
-
-            /// ------------
-            /// Constructors
+            private final SourceFile invalidFile;
 
             /**
-             * <p>Constructs the {@link UnexpectedEndOfFile} to its default state.</p>
+             * <p>Constructs the {@link GeneratorAssert.GeneratingCombinations} to its default state.</p>
              * @param culprit The {@link Phase} instance that raised the error.
              * @see Phase
-             * @see Error
+             * @see Info
              * @since 0.1.0
              */
-            protected UnexpectedEndOfFile(final Phase culprit, final int line) {
+            protected GeneratingCombinations(final Phase culprit, final Object sourceFile) {
                 super(culprit);
 
-                this.line = line;
+                this.invalidFile = (SourceFile) sourceFile;
+
+            }
+
+            /**
+             * <p>Returns the {@link String} message to be emitted to the user.</p>
+             * @return {@link String} message to be emitted to the user.
+             * @since 0.1.0
+             * @see String
+             * @see Exception
+             */
+            @Override
+            public final String getMessage() {
+
+                return "Generating Trace Combinations";
 
             }
 
         }
 
         /**
-         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} contained invalid syntax.</p>
+         * <p>{@link Phase.Info} to be emitted when a {@link SourceFile} generated a unique trace combination.</p>
          * @see Phase
-         * @see Phase.Error
+         * @see Phase.Info
          * @version 1.0.0
          * @since 0.1.0
          */
-        protected static class SyntaxErrorException extends Error {
-
-            /// ------------------------
-            /// Protected Static Methods
+        protected static class Generated extends Info {
 
             /**
-             * <p>Emits the {@link SyntaxErrorException}.</p>
+             * <p>Emits the {@link GeneratorAssert.Generated}.</p>
              * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
              */
-            protected static void Assert(final Phase phase, final int line, final int lineCount, final int length) {
+            protected static void Assert(final Phase phase, final SourceFile sourceFile, final String trace) {
 
-                Error.Assert(SyntaxErrorException.class, phase, line, lineCount, length);
+                phase.getListener().notify(NewInstanceOf(GeneratorAssert.Generated.class, phase, sourceFile, trace));
 
             }
 
-            /// --------------
-            /// Private Fields
-
-            final int line      ;
-            final int lineCount ;
-            final int length    ;
-
-            /// ------------
-            /// Constructors
+            /**
+             * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
 
             /**
-             * <p>Constructs the {@link SyntaxErrorException} to its default state.</p>
+             * <p>Generated {@link String} trace.</p>
+             * @since 0.1.0
+             * @see String
+             */
+            private final String trace;
+
+            /**
+             * <p>Constructs the {@link GeneratorAssert.Generated} to its default state.</p>
              * @param culprit The {@link Phase} instance that raised the error.
              * @see Phase
-             * @see Error
+             * @see Info
              * @since 0.1.0
              */
-            protected SyntaxErrorException(final Phase culprit, final int line, final int lineCount, final int length) {
+            protected Generated(final Phase culprit, final SourceFile sourceFile, final String trace) {
                 super(culprit);
-                this.line       = line      ;
-                this.lineCount  = lineCount ;
-                this.length     = length    ;
+
+                this.invalidFile = sourceFile;
+                this.trace = trace;
+
+            }
+
+            /**
+             * <p>Returns the {@link String} message to be emitted to the user.</p>
+             * @return {@link String} message to be emitted to the user.
+             * @since 0.1.0
+             * @see String
+             * @see Exception
+             */
+            @Override
+            public final String getMessage() {
+
+                return String.format("Generated: %s", this.trace);
+
             }
 
         }
 
         /**
-         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} encountered an illegal cast expression.</p>
+         * <p>{@link Phase.Info} to be emitted when a {@link SourceFile} generated a unique trace combination.</p>
          * @see Phase
-         * @see Phase.Error
+         * @see Phase.Info
          * @version 1.0.0
          * @since 0.1.0
          */
-        protected static class IllegalCastExpression extends Error {
-
-            /// ------------------------
-            /// Protected Static Methods
+        protected static class GeneratedTotal extends Info {
 
             /**
-             * <p>Emits the {@link IllegalCastExpression}.</p>
+             * <p>Emits the {@link GeneratorAssert.GeneratedTotal}.</p>
              * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
              */
-            protected static void Assert(final Phase phase, final int line, final int lineCount, final int length) {
+            protected static void Assert(final Phase phase, final SourceFile sourceFile, final String amount) {
 
-                Error.Assert(IllegalCastExpression.class, phase, line, lineCount, length);
+                phase.getListener().notify(NewInstanceOf(
+                        GeneratorAssert.GeneratedTotal.class, phase, sourceFile, amount));
 
             }
 
-            /// --------------
-            /// Private Fields
-
-            final int line      ;
-            final int lineCount ;
-            final int length    ;
-
-            /// ------------
-            /// Constructors
+            /**
+             * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile sourceFile;
 
             /**
-             * <p>Constructs the {@link IllegalCastExpression} to its default state.</p>
+             * <p>{@link String} value of the amount of generated traces.</p>
+             * @since 0.1.0
+             * @see String
+             */
+            private final String amount;
+
+            /**
+             * <p>Constructs the {@link GeneratorAssert.GeneratedTotal} to its default state.</p>
              * @param culprit The {@link Phase} instance that raised the error.
              * @see Phase
-             * @see Error
+             * @see Info
              * @since 0.1.0
              */
-            protected IllegalCastExpression(final Phase culprit, final int line, final int lineCount, final int length) {
+            protected GeneratedTotal(final Phase culprit, final SourceFile sourceFile, final String amount) {
                 super(culprit);
-                this.line       = line      ;
-                this.lineCount  = lineCount ;
-                this.length     = length    ;
+
+                this.sourceFile = sourceFile;
+                this.amount = amount;
+
+            }
+
+            /**
+             * <p>Returns the {@link String} message to be emitted to the user.</p>
+             * @return {@link String} message to be emitted to the user.
+             * @since 0.1.0
+             * @see String
+             * @see Exception
+             */
+            @Override
+            public final String getMessage() {
+
+                return String.format("Generated %s unique traces", this.amount);
+
             }
 
         }
 
         /**
-         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} encoded a malformed Package Access.</p>
+         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} failed to open during
+         * execution of a {@link Phase}.</p>
          * @see Phase
          * @see Phase.Error
          * @version 1.0.0
          * @since 0.1.0
          */
-        protected static class MalformedPackageAccess extends Error {
-
-            /// ------------------------
-            /// Protected Static Methods
+        protected static class InvalidDepth extends Error {
 
             /**
-             * <p>Emits the {@link MalformedPackageAccess}.</p>
+             * <p>Emits the {@link GeneratorAssert.InvalidDepth}.</p>
              * @param phase The invoking {@link Phase}.
+             * @param sourceFile The {@link SourceFile} that emitted the {@link Phase.Error}.
+             * @since 0.1.0
              */
-            protected static void Assert(final Phase phase, final int line, final int lineCount, final int length) {
+            protected static void Assert(final Phase phase, final SourceFile sourceFile) {
 
-                Error.Assert(MalformedPackageAccess.class, phase, line, lineCount, length);
+                Error.Assert(GeneratorAssert.InvalidDepth.class, phase, sourceFile);
 
             }
 
-            /// --------------
-            /// Private Fields
-
-            final int line      ;
-            final int lineCount ;
-            final int length    ;
-
-            /// ------------
-            /// Constructors
+            /**
+             * <p>The invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
 
             /**
-             * <p>Constructs the {@link MalformedPackageAccess} to its default state.</p>
+             * <p>Constructs the {@link GeneratorAssert.InvalidDepth} to its default state.</p>
              * @param culprit The {@link Phase} instance that raised the error.
              * @see Phase
              * @see Error
              * @since 0.1.0
              */
-            protected MalformedPackageAccess(final Phase culprit, final int line, final int lineCount, final int length) {
+            protected InvalidDepth(final Phase culprit, final SourceFile sourceFile) {
                 super(culprit);
-                this.line       = line      ;
-                this.lineCount  = lineCount ;
-                this.length     = length    ;
+
+                this.invalidFile = sourceFile;
+
+            }
+
+        }
+
+        /**
+         * <p>{@link Phase.Error} to be emitted if a {@link SourceFile} failed to write during
+         * execution of a {@link Phase}.</p>
+         * @see Phase
+         * @see Phase.Error
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        protected static class FileWriteFailed extends Error {
+
+            /**
+             * <p>Emits the {@link GeneratorAssert.FileWriteFailed}.</p>
+             * @param phase The invoking {@link Phase}.
+             * @param sourceFile The {@link SourceFile} that emitted the {@link Phase.Error}.
+             * @since 0.1.0
+             */
+            protected static void Assert(final Phase phase, final SourceFile sourceFile) {
+
+                Error.Assert(GeneratorAssert.FileWriteFailed.class, phase, sourceFile);
+
+            }
+
+            /**
+             * <p>The invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
+
+            /**
+             * <p>Constructs the {@link GeneratorAssert.FileWriteFailed} to its default state.</p>
+             * @param culprit The {@link Phase} instance that raised the error.
+             * @see Phase
+             * @see Error
+             * @since 0.1.0
+             */
+            protected FileWriteFailed(final Phase culprit, final SourceFile sourceFile) {
+                super(culprit);
+
+                this.invalidFile = sourceFile;
+
             }
 
         }
 
     }
-
-
 
 }
