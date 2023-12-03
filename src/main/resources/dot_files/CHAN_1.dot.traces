@@ -1,44 +1,32 @@
-0
-0 2
-0 2 5
-0 2 5 3
-0 2 5 3 4
-1
-1 6
-1 6 4
-1 6 4 2
-1 6 4 2 5
-1 6 4 2 5 3
-1 7
-1 7 0
-1 7 0 2
-1 7 0 2 5
-1 7 0 2 5 3
-1 7 0 2 5 3 4
-2
-2 5
-2 5 3
-2 5 3 4
-3
-3 4
-3 4 2
-3 4 2 5
-4
-4 2
-4 2 5
-4 2 5 3
-5
-5 3
-5 3 4
-5 3 4 2
-6
-6 4
-6 4 2
-6 4 2 5
-6 4 2 5 3
-7
-7 0
-7 0 2
-7 0 2 5
-7 0 2 5 3
-7 0 2 5 3 4
+"write.0.0.0"
+"write.0.0.0" "ack.0.0"
+"write.0.0.0" "ack.0.0" "write.0.0.0"
+"write.0.0.0" "ack.0.0" "write.0.0.0" "read.0.1.0"
+"τ"
+"τ" "write.0.0.0"
+"τ" "write.0.0.0" "start_read.0.1"
+"τ" "write.0.0.0" "start_read.0.1" "ack.0.0"
+"τ" "write.0.0.0" "start_read.0.1" "ack.0.0" "write.0.0.0"
+"τ" "start_read.0.1"
+"τ" "start_read.0.1" "write.0.0.0"
+"τ" "start_read.0.1" "write.0.0.0" "ack.0.0"
+"τ" "start_read.0.1" "write.0.0.0" "ack.0.0" "write.0.0.0"
+"τ" "start_read.0.1" "write.0.0.0" "ack.0.0" "write.0.0.0" "read.0.1.0"
+"ack.0.0"
+"ack.0.0" "write.0.0.0"
+"ack.0.0" "write.0.0.0" "read.0.1.0"
+"read.0.1.0"
+"read.0.1.0" "start_read.0.1"
+"read.0.1.0" "start_read.0.1" "ack.0.0"
+"start_read.0.1"
+"start_read.0.1" "ack.0.0"
+"start_read.0.1" "ack.0.0" "write.0.0.0"
+"write.0.0.0" "read.0.1.0"
+"write.0.0.0" "read.0.1.0" "start_read.0.1"
+"write.0.0.0" "start_read.0.1"
+"write.0.0.0" "start_read.0.1" "ack.0.0"
+"write.0.0.0" "start_read.0.1" "ack.0.0" "write.0.0.0"
+"start_read.0.1" "write.0.0.0"
+"start_read.0.1" "write.0.0.0" "ack.0.0"
+"start_read.0.1" "write.0.0.0" "ack.0.0" "write.0.0.0"
+"start_read.0.1" "write.0.0.0" "ack.0.0" "write.0.0.0" "read.0.1.0"

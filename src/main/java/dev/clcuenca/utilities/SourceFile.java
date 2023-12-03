@@ -58,7 +58,7 @@ public class SourceFile {
      * @since 0.1.0
      * @see DirectedGraph
      */
-    private DirectedGraph<String> directedGraph;
+    private DirectedGraph<String, String> directedGraph;
 
 
     /// ------------
@@ -142,7 +142,7 @@ public class SourceFile {
      * @param directedGraph The {@link DirectedGraph} to set.
      * @since 0.1.0
      */
-    public final void setDirectedGraph(final DirectedGraph<String> directedGraph) {
+    public final void setDirectedGraph(final DirectedGraph<String, String> directedGraph) {
 
         if(directedGraph != null) this.directedGraph = directedGraph;
 
@@ -218,7 +218,7 @@ public class SourceFile {
      * @return {@link DirectedGraph}
      * @since 0.1.0
      */
-    public final DirectedGraph<String> getDirectedGraph() {
+    public final DirectedGraph<String, String> getDirectedGraph() {
 
         return this.directedGraph;
 

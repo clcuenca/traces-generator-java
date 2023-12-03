@@ -11,6 +11,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.*;
+
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 /**
@@ -20,14 +22,30 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
  * @see DirectedGraph
  * @see SourceFile
  */
-public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String>> {
+public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String, String>> {
 
     /**
      * <p>The {@link DirectedGraph} that gets constructed from a DOT file.</p>
      * @since 1.0.0
      * @see DirectedGraph
      */
-    final DirectedGraph<String> directedGraph;
+    private final DirectedGraph<String, String> directedGraph;
+
+    /**
+     * <p>The current {@link Map} of attributes constructed from a current statement.</p>
+     * @since 0.1.0
+     * @see Map
+     * @see String
+     */
+    private final Map<String, Set<String>> currentAttributes;
+
+    /**
+     * <p>The root of the tree to be generated from the {@link DirectedGraph}.</p>
+     * @since 0.1.0
+     * @see String
+     * @see DirectedGraph
+     */
+    private String root;
 
     /**
      * <p>Initializes the {@link Phase} to its' default state with the specified {@link Listener}.</p>
@@ -36,10 +54,12 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String>
      * @see Listener
      * @since 0.1.0
      */
-    public ParseFile(Listener listener) {
+    public ParseFile(final Listener listener) {
         super(listener);
 
         this.directedGraph = new DirectedGraph<>();
+        this.currentAttributes = new HashMap<>();
+        this.root = null;
 
     }
 
@@ -80,24 +100,28 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String>
     }
 
     @Override
-    public DirectedGraph<String> visitGraph(final DOTParser.GraphContext graphContext) {
+    public DirectedGraph<String, String> visitGraph(final DOTParser.GraphContext graphContext) {
 
-        return graphContext.statementList().accept(this);
-
-    }
-
-    @Override
-    public DirectedGraph<String> visitStatementList(final DOTParser.StatementListContext statementListContext) {
-
-        statementListContext.statement().forEach(
-                (final DOTParser.StatementContext statementContext) -> statementContext.accept(this));
+        if(graphContext.statementList() != null)
+            graphContext.statementList().accept(this);
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitStatement(final DOTParser.StatementContext statementContext) {
+    public DirectedGraph<String, String> visitStatementList(final DOTParser.StatementListContext statementListContext) {
+
+        if(statementListContext.statement() != null)
+            statementListContext.statement().forEach((final DOTParser.StatementContext statementContext) ->
+                    statementContext.accept(this));
+
+        return this.directedGraph;
+
+    }
+
+    @Override
+    public DirectedGraph<String, String> visitStatement(final DOTParser.StatementContext statementContext) {
 
         if(statementContext.edgeStatement() != null)
             statementContext.edgeStatement().accept(this);
@@ -107,114 +131,140 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String>
     }
 
     @Override
-    public DirectedGraph<String> visitAttributeStatement(final DOTParser.AttributeStatementContext attributeStatementContext) {
+    public DirectedGraph<String, String> visitAttributeStatement(final DOTParser.AttributeStatementContext attributeStatementContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitAttributeList(final DOTParser.AttributeListContext attributeListContext) {
+    public DirectedGraph<String, String> visitAttributeList(final DOTParser.AttributeListContext attributeListContext) {
+
+        if(attributeListContext.aList() != null)
+            attributeListContext.aList()
+                    .forEach((final DOTParser.AListContext aListContext) -> aListContext.accept(this));
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitAList(final DOTParser.AListContext aListContext) {
+    public DirectedGraph<String, String> visitAList(final DOTParser.AListContext aListContext) {
+
+        if((aListContext.identifier() != null) && (!aListContext.identifier().isEmpty())) {
+
+            final String key = aListContext.identifier().get(0).getText();
+            final String value = aListContext.identifier().get(1).getText();
+
+            this.currentAttributes.putIfAbsent(key, new LinkedHashSet<>());
+            this.currentAttributes.get(key).add(value);
+
+        }
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitEdgeStatement(final DOTParser.EdgeStatementContext edgeStatementContext) {
+    public DirectedGraph<String, String> visitEdgeStatement(final DOTParser.EdgeStatementContext edgeStatementContext) {
 
         final String from = edgeStatementContext.vertexId().identifier().getText();
         final DOTParser.EdgeRHSContext edgeRHSContext = edgeStatementContext.edgeRHS();
 
+        if(edgeStatementContext.attributeList() != null)
+            edgeStatementContext.attributeList().accept(this);
+
         edgeRHSContext.vertexId().forEach((final DOTParser.VertexIdContext vertexIdContext) -> {
 
-            this.directedGraph.addEdge(from, vertexIdContext.identifier().getText());
+            final Set<String> attributes = this.currentAttributes.getOrDefault("label", Set.of());
+            final String label = !attributes.isEmpty()
+                    ? (String) attributes.toArray()[0]
+                    : vertexIdContext.identifier().getText();
+            final String to = vertexIdContext.identifier().getText();
+
+            this.directedGraph.addEdge(from, to, label);
 
         });
 
-        return this.directedGraph;
-
-    }
-
-    @Override
-    public DirectedGraph<String> visitEdgeRHS(final DOTParser.EdgeRHSContext edgeRHSContext) {
+        this.currentAttributes.forEach((final String attribute, final Set<String> values) -> values.clear());
+        this.currentAttributes.clear();
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitEdgeOperator(final DOTParser.EdgeOperatorContext edgeOperatorContext) {
+    public DirectedGraph<String, String> visitEdgeRHS(final DOTParser.EdgeRHSContext edgeRHSContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitNodeStatement(final DOTParser.NodeStatementContext nodeStatementContext) {
+    public DirectedGraph<String, String> visitEdgeOperator(final DOTParser.EdgeOperatorContext edgeOperatorContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitVertexId(final DOTParser.VertexIdContext vertexIdContext) {
+    public DirectedGraph<String, String> visitNodeStatement(final DOTParser.NodeStatementContext nodeStatementContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitPort(final DOTParser.PortContext portContext) {
+    public DirectedGraph<String, String> visitVertexId(final DOTParser.VertexIdContext vertexIdContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitSubgraph(final DOTParser.SubgraphContext subgraphContext) {
+    public DirectedGraph<String, String> visitPort(final DOTParser.PortContext portContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitIdentifier(final DOTParser.IdentifierContext identifierContext) {
+    public DirectedGraph<String, String> visitSubgraph(final DOTParser.SubgraphContext subgraphContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visit(final ParseTree parseTree) {
+    public DirectedGraph<String, String> visitIdentifier(final DOTParser.IdentifierContext identifierContext) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitChildren(final RuleNode ruleNode) {
+    public DirectedGraph<String, String> visit(final ParseTree parseTree) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitTerminal(final TerminalNode terminalNode) {
+    public DirectedGraph<String, String> visitChildren(final RuleNode ruleNode) {
 
         return this.directedGraph;
 
     }
 
     @Override
-    public DirectedGraph<String> visitErrorNode(final ErrorNode errorNode) {
+    public DirectedGraph<String, String> visitTerminal(final TerminalNode terminalNode) {
+
+        return this.directedGraph;
+
+    }
+
+    @Override
+    public DirectedGraph<String, String> visitErrorNode(final ErrorNode errorNode) {
 
         return this.directedGraph;
 

@@ -8,14 +8,14 @@ import java.util.*;
  * @since 1.0.0
  * @author Carlos L. Cuenca
  */
-public class DirectedGraph<Type> implements Cloneable {
+public class DirectedGraph<Type, LabelType> implements Cloneable {
 
     /**
      * <p>The adjacency {@link Map}ping that marks all adjacent vertices in the {@link DirectedGraph}.</p>
      * @since 1.0.0
      * @see Map
      */
-    private final Map<Type, Set<Type>> adjacencyMatrix;
+    private final Map<Type, Map<Type, LabelType>> adjacencyMatrix;
 
     /**
      * <p>Initializes the {@link DirectedGraph} to its' default state.</p>
@@ -38,13 +38,13 @@ public class DirectedGraph<Type> implements Cloneable {
 
         final StringBuilder stringBuilder = new StringBuilder();
 
-        this.adjacencyMatrix.forEach((final Type vertex, final Set<Type> neighbors) -> {
+        this.adjacencyMatrix.forEach((final Type vertex, final Map<Type, LabelType> neighbors) -> {
 
             if(!neighbors.isEmpty()) {
 
                 stringBuilder.append(vertex).append(" -> ");
 
-                neighbors.forEach((final Type neighbor) -> {
+                neighbors.forEach((final Type neighbor, final LabelType label) -> {
 
                     stringBuilder.append(neighbor)
                             .append(' ');
@@ -69,15 +69,13 @@ public class DirectedGraph<Type> implements Cloneable {
      * @since 1.0.0
      */
     @Override
-    public DirectedGraph<Type> clone() {
+    public DirectedGraph<Type, LabelType> clone() {
 
-        final DirectedGraph<Type> clone = new DirectedGraph<>();
+        final DirectedGraph<Type, LabelType> clone = new DirectedGraph<>();
 
-        this.adjacencyMatrix.forEach((final Type vertex, final Set<Type> neighbors) -> {
-            neighbors.forEach((final Type neighbor) -> {
-                clone.addEdge(vertex, neighbor);
-            });
-        });
+        this.adjacencyMatrix.forEach((final Type vertex, final Map<Type, LabelType> adjacent) ->
+                adjacent.forEach((final Type neighbor, final LabelType label) ->
+                        clone.addEdge(vertex, neighbor, label)));
 
         return clone;
 
@@ -88,15 +86,20 @@ public class DirectedGraph<Type> implements Cloneable {
      * indicating if the edge representation was not present in the {@link DirectedGraph}.</p>
      * @param from The origin vertex.
      * @param to The destination vertex.
+     * @param label The label representing the edge.
      * @return Flag indicating if the edge representation was not present in the {@link DirectedGraph}.
      * @since 1.0.0
      */
-    public final boolean addEdge(final Type from, final Type to) {
+    public final boolean addEdge(final Type from, final Type to, final LabelType label) {
 
-        this.adjacencyMatrix.putIfAbsent(from, new HashSet<>());
-        this.adjacencyMatrix.putIfAbsent(to, new HashSet<>());
+        this.adjacencyMatrix.putIfAbsent(from, new HashMap<>());
+        this.adjacencyMatrix.putIfAbsent(to, new HashMap<>());
 
-        return this.adjacencyMatrix.get(from).add(to);
+        final boolean contained = this.adjacencyMatrix.get(from).containsKey(to);
+
+        this.adjacencyMatrix.get(from).put(to, label);
+
+        return contained;
 
     }
 
@@ -116,11 +119,11 @@ public class DirectedGraph<Type> implements Cloneable {
     @SuppressWarnings("unchecked")
     private void toTree(final Type vertex,
                         final Set<Type> visited,
-                        final DirectedGraph<Type> directedGraph,
-                        final CombinationsCallback<Type> combinationsCallback) {
+                        final DirectedGraph<Type, LabelType> directedGraph,
+                        final CombinationsCallback<Type, LabelType> combinationsCallback) {
 
         // Enumerate the specified vertices' neighbors
-        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).toArray();
+        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).keySet().toArray();
 
         // For each combination of length one to the amount of neighbors
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
@@ -132,18 +135,24 @@ public class DirectedGraph<Type> implements Cloneable {
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
 
                 // Initialize a handle to the unmutated graph
-                final DirectedGraph<Type> directedGraphCombination = directedGraph.clone();
+                final DirectedGraph<Type, LabelType> directedGraphCombination = directedGraph.clone();
 
                 // Add the edges corresponding to the current combination
-                for(final int index : indices)
-                    directedGraphCombination.addEdge(vertex, adjacentArray[index]);
+                for(final int index : indices) {
+
+                    final Type adjacent = adjacentArray[index];
+
+                    directedGraphCombination.addEdge(vertex, adjacent, this.adjacencyMatrix.get(vertex).get(adjacent));
+
+                }
 
                 // Callback the permutation
                 combinationsCallback.invoke(directedGraphCombination);
 
                 // Recur for each child in the combination
-                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex))
-                    if(visitedSnapshot.add(child)) toTree(child, visitedSnapshot, directedGraphCombination, combinationsCallback);
+                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex).keySet())
+                    if(visitedSnapshot.add(child))
+                        toTree(child, visitedSnapshot, directedGraphCombination, combinationsCallback);
 
             });
 
@@ -167,17 +176,12 @@ public class DirectedGraph<Type> implements Cloneable {
     @SuppressWarnings("unchecked")
     private void toTree(final Type vertex,
                         final Set<Type> visited,
-                        final DirectedGraph<Type> directedGraph,
-                        final TraceCallback<Type> traceCallback,
-                        final List<Type> trace) {
+                        final DirectedGraph<Type, LabelType> directedGraph,
+                        final TraceCallback<LabelType> traceCallback,
+                        final List<LabelType> trace) {
 
         // Enumerate the specified vertices' neighbors
-        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).toArray();
-
-        // Add the vertex to the trace
-        trace.add(vertex);
-
-        traceCallback.invoke(trace);
+        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).keySet().toArray();
 
         // For each combination of length one to the amount of neighbors
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
@@ -189,22 +193,34 @@ public class DirectedGraph<Type> implements Cloneable {
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
 
                 // Initialize a handle to the unmutated graph
-                final DirectedGraph<Type> directedGraphCombination = directedGraph.clone();
+                final DirectedGraph<Type, LabelType> directedGraphCombination = directedGraph.clone();
 
                 // Add the edges corresponding to the current combination
-                for(final int index : indices)
-                    directedGraphCombination.addEdge(vertex, adjacentArray[index]);
+                for(final int index : indices) {
+
+                    final Type adjacent = adjacentArray[index];
+
+                    directedGraphCombination.addEdge(vertex, adjacent, this.adjacencyMatrix.get(vertex).get(adjacent));
+
+                }
 
                 // Recur for each child in the combination
-                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex))
-                    if(visitedSnapshot.add(child)) toTree(child, visitedSnapshot, directedGraphCombination,
-                            traceCallback, trace);
+                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex).keySet())
+                    if(visitedSnapshot.add(child)) {
+
+                        trace.add(this.adjacencyMatrix.get(vertex).get(child));
+
+                        traceCallback.invoke(trace);
+
+                        toTree(child, visitedSnapshot, directedGraphCombination, traceCallback, trace);
+
+                        trace.remove(trace.size() - 1);
+
+                    }
 
             });
 
         }
-
-        trace.remove(trace.size() - 1);
 
     }
 
@@ -224,8 +240,8 @@ public class DirectedGraph<Type> implements Cloneable {
     @SuppressWarnings("unchecked")
     private void toTree(final Type vertex,
                         final Set<Type> visited,
-                        final DirectedGraph<Type> directedGraph,
-                        final CombinationsCallback<Type> combinationsCallback,
+                        final DirectedGraph<Type, LabelType> directedGraph,
+                        final CombinationsCallback<Type, LabelType> combinationsCallback,
                         final int minimumDepth,
                         final int maximumDepth,
                         final int depth) {
@@ -233,7 +249,7 @@ public class DirectedGraph<Type> implements Cloneable {
         if(depth == -1) return;
 
         // Enumerate the specified vertices' neighbors
-        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).toArray();
+        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).keySet().toArray();
 
         // For each combination of length one to the amount of neighbors
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
@@ -245,18 +261,23 @@ public class DirectedGraph<Type> implements Cloneable {
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
 
                 // Initialize a handle to the unmutated graph
-                final DirectedGraph<Type> directedGraphCombination = directedGraph.clone();
+                final DirectedGraph<Type, LabelType> directedGraphCombination = directedGraph.clone();
 
                 // Add the edges corresponding to the current combination
-                for(final int index : indices)
-                    directedGraphCombination.addEdge(vertex, adjacentArray[index]);
+                for(final int index : indices) {
+
+                    final Type adjacent = adjacentArray[index];
+
+                    directedGraphCombination.addEdge(vertex, adjacent, this.adjacencyMatrix.get(vertex).get(adjacent));
+
+                }
 
                 // Callback the combination if the depth is in range.
                 if((depth >= minimumDepth) && (depth <= maximumDepth))
                     combinationsCallback.invoke(directedGraphCombination);
 
                 // Recur for each child in the combination
-                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex))
+                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex).keySet())
                     if(visitedSnapshot.add(child))
                         toTree(child, visitedSnapshot, directedGraphCombination, combinationsCallback,
                                 minimumDepth, maximumDepth, depth + 1);
@@ -282,9 +303,9 @@ public class DirectedGraph<Type> implements Cloneable {
     @SuppressWarnings("unchecked")
     private void toTree(final Type vertex,
                         final Set<Type> visited,
-                        final DirectedGraph<Type> directedGraph,
-                        final TraceCallback<Type> traceCallback,
-                        final List<Type> trace,
+                        final DirectedGraph<Type, LabelType> directedGraph,
+                        final TraceCallback<LabelType> traceCallback,
+                        final List<LabelType> trace,
                         final int minimumDepth,
                         final int maximumDepth,
                         final int depth) {
@@ -292,11 +313,7 @@ public class DirectedGraph<Type> implements Cloneable {
         if((depth == -1) || (depth < minimumDepth) || (depth > maximumDepth)) return;
 
         // Enumerate the specified vertices' neighbors
-        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).toArray();
-
-        trace.add(vertex);
-
-        traceCallback.invoke(trace);
+        final Type[] adjacentArray = (Type[]) this.adjacencyMatrix.get(vertex).keySet().toArray();
 
         // For each combination of length one to the amount of neighbors
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
@@ -308,23 +325,36 @@ public class DirectedGraph<Type> implements Cloneable {
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
 
                 // Initialize a handle to the unmutated graph
-                final DirectedGraph<Type> directedGraphCombination = directedGraph.clone();
+                final DirectedGraph<Type, LabelType> directedGraphCombination = directedGraph.clone();
 
                 // Add the edges corresponding to the current combination
-                for(final int index : indices)
-                    directedGraphCombination.addEdge(vertex, adjacentArray[index]);
+                for(final int index : indices) {
 
-                // Callback the combination if the depth is in range.
-                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex))
-                    if(visitedSnapshot.add(child))
-                        toTree(child, visitedSnapshot, directedGraphCombination, traceCallback,
-                                trace, minimumDepth, maximumDepth, depth + 1);
+                    final Type adjacent = adjacentArray[index];
+
+                    directedGraphCombination.addEdge(vertex, adjacentArray[index],
+                            this.adjacencyMatrix.get(vertex).get(adjacent));
+
+                }
+
+                // Recur for each child in the combination
+                for(final Type child : directedGraphCombination.adjacencyMatrix.get(vertex).keySet())
+                    if(visitedSnapshot.add(child)) {
+
+                        trace.add(this.adjacencyMatrix.get(vertex).get(child));
+
+                        traceCallback.invoke(trace);
+
+                        toTree(child, visitedSnapshot, directedGraphCombination, traceCallback, trace,
+                                minimumDepth, maximumDepth, depth + 1);
+
+                        trace.remove(trace.size() - 1);
+
+                    }
 
             });
 
         }
-
-        trace.remove(trace.size() - 1);
 
     }
 
@@ -337,7 +367,7 @@ public class DirectedGraph<Type> implements Cloneable {
      * @since 1.0.0
      * @see CombinationsCallback
      */
-    public final void treeCombinations(final CombinationsCallback<Type> combinationsCallback) {
+    public final void treeCombinations(final CombinationsCallback<Type, LabelType> combinationsCallback) {
 
         for(final Type vertex : this.adjacencyMatrix.keySet()) {
 
@@ -360,7 +390,7 @@ public class DirectedGraph<Type> implements Cloneable {
      * @since 1.0.0
      * @see CombinationsCallback
      */
-    public final void treeCombinations(final CombinationsCallback<Type> combinationsCallback,
+    public final void treeCombinations(final CombinationsCallback<Type, LabelType> combinationsCallback,
                                        final int minimumDepth,
                                        final int maximumDepth)
             throws InvalidMaximumDepthException, InvalidMinimumDepthException {
@@ -393,7 +423,7 @@ public class DirectedGraph<Type> implements Cloneable {
      * @since 1.0.0
      * @see CombinationsCallback
      */
-    public final void treeCombinations(final TraceCallback<Type> traceCallback) {
+    public final void treeCombinations(final TraceCallback<LabelType> traceCallback) {
 
         for(final Type vertex : this.adjacencyMatrix.keySet()) {
 
@@ -416,7 +446,7 @@ public class DirectedGraph<Type> implements Cloneable {
      * @since 1.0.0
      * @see CombinationsCallback
      */
-    public final void treeCombinations(final TraceCallback<Type> traceCallback,
+    public final void treeCombinations(final TraceCallback<LabelType> traceCallback,
                                        final int minimumDepth,
                                        final int maximumDepth)
             throws InvalidMaximumDepthException, InvalidMinimumDepthException {
@@ -446,7 +476,7 @@ public class DirectedGraph<Type> implements Cloneable {
      */
     public final void clear() {
 
-        this.adjacencyMatrix.forEach((final Type key, final Set<Type> value) -> value.clear());
+        this.adjacencyMatrix.forEach((final Type vertex, final Map<Type, LabelType> neighbors) -> neighbors.clear());
 
         this.adjacencyMatrix.clear();
 
@@ -459,22 +489,23 @@ public class DirectedGraph<Type> implements Cloneable {
      * @author Carlos L. Cuenca
      */
     @FunctionalInterface
-    public interface CombinationsCallback <T> {
+    public interface CombinationsCallback <T, L> {
 
-        void invoke(final DirectedGraph<T> directedGraph);
+        void invoke(final DirectedGraph<T, L> directedGraph);
 
     }
 
     /**
-     * <p>Functional interface describing a function that receives a trace {@link List} combination.</p>
-     * @param <T> The type contained in the {@link DirectedGraph} as vertices.
+     * <p>Functional interface describing a function that receives a trace {@link List} combination of the Label Type.
+     * </p>
+     * @param <L> The label type contained in the {@link DirectedGraph} as vertices.
      * @since 1.0.0
      * @author Carlos L. Cuenca
      */
     @FunctionalInterface
-    public interface TraceCallback <T> {
+    public interface TraceCallback <L> {
 
-        void invoke(final List<T> trace);
+        void invoke(final List<L> trace);
 
     }
 

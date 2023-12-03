@@ -60,7 +60,7 @@ public class GenerateCombinations extends Phase {
     protected void executePhase() {
 
         final SourceFile sourceFile = this.getSourceFile();
-        final DirectedGraph<String> directedGraph = sourceFile.getDirectedGraph();
+        final DirectedGraph<String, String> directedGraph = sourceFile.getDirectedGraph();
 
         GeneratorAssert.GeneratingCombinations.Assert(this, sourceFile);
 
