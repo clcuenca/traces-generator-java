@@ -68,7 +68,7 @@ public class GenerateCombinations extends Phase {
 
             directedGraph.treeCombinations((final List<String> combination) -> {
 
-                final String trace = String.join(" ", combination);
+                final String trace = String.join(" ", combination).replaceAll("τ", "").trim();
 
                 if(sourceFile.addTrace(trace) && GenerateCombinations.ShowGeneratedTraces)
                     GeneratorAssert.Generated.Assert(this, sourceFile, trace);
