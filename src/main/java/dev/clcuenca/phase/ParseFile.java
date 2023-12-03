@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
@@ -95,12 +97,19 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String,
 
         sourceFile.setDirectedGraph(this.directedGraph.clone());
 
+        if(sourceFile.getStartingState() == null)
+            ParserAssert.NoStartStateFound.Assert(this, sourceFile);
+
         this.directedGraph.clear();
 
     }
 
     @Override
     public DirectedGraph<String, String> visitGraph(final DOTParser.GraphContext graphContext) {
+
+        if(graphContext.comments() != null)
+            graphContext.comments().forEach((final DOTParser.CommentsContext commentsContext) ->
+                    commentsContext.accept(this));
 
         if(graphContext.statementList() != null)
             graphContext.statementList().accept(this);
@@ -111,6 +120,10 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String,
 
     @Override
     public DirectedGraph<String, String> visitStatementList(final DOTParser.StatementListContext statementListContext) {
+
+        if(statementListContext.comments() != null)
+            statementListContext.comments().forEach((final DOTParser.CommentsContext commentsContext) ->
+                    commentsContext.accept(this));
 
         if(statementListContext.statement() != null)
             statementListContext.statement().forEach((final DOTParser.StatementContext statementContext) ->
@@ -240,6 +253,39 @@ public class ParseFile extends Phase implements DOTVisitor<DirectedGraph<String,
 
         return this.directedGraph;
 
+    }
+
+    @Override
+    public DirectedGraph<String, String> visitComments(final DOTParser.CommentsContext commentsContext) {
+
+        final String comment = commentsContext.getText().toLowerCase();
+
+        final Pattern pattern = Pattern.compile("([sS][tT][aA][rR][tT].*[0-9]+)");
+        final Matcher matcher = pattern.matcher(comment);
+
+        if(matcher.find()) {
+
+            final Pattern stateNumberPattern = Pattern.compile("(\\d+)");
+            final Matcher stateNumberMatcher = stateNumberPattern.matcher(comment);
+
+            if(stateNumberMatcher.find()) {
+
+                final SourceFile sourceFile = this.getSourceFile();
+                final String startingState = stateNumberMatcher.group();
+
+                if(sourceFile.getStartingState() == null) {
+
+                    sourceFile.setStartingState(startingState);
+
+                    ParserAssert.StartingStateFound.Assert(this, sourceFile, startingState);
+
+                } else ParserAssert.DuplicateStartingStateFound.Assert(this, sourceFile, startingState);
+
+            }
+
+        }
+
+        return this.directedGraph;
     }
 
     @Override

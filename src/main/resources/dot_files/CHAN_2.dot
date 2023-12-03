@@ -1,3 +1,4 @@
+// start 1
 digraph G {
   0 -> 4 [ label="write.0.0.0" ];
   1 -> 6 [ label="write.0.0.0" ];

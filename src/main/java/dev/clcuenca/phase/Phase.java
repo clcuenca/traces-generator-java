@@ -403,7 +403,7 @@ public abstract class Phase {
         protected final void notify(final Phase.Warning phaseWarning) {
 
             // Simply log the warning
-            Warning.Log(phaseWarning.getSourceFile() + ": " + phaseWarning.getMessage());
+            Warning.Log(phaseWarning.getSourceFile().getPath() + ": " + phaseWarning.getMessage());
 
             // Push the warning
             this.push(phaseWarning);
@@ -419,7 +419,7 @@ public abstract class Phase {
         protected final void notify(final Phase.Error phaseError)  {
 
             // Log the message
-            Error.Log(phaseError.getSourceFile() + ": " + phaseError.getMessage());
+            Error.Log(phaseError.getSourceFile().getPath() + ": " + phaseError.getMessage());
 
             // Push the error
             this.push(phaseError);
@@ -717,6 +717,181 @@ public abstract class Phase {
                 super(culprit);
 
                 this.invalidFile = sourceFile;
+
+            }
+
+        }
+
+        /**
+         * <p>{@link Phase.Info} to be emitted when a {@link SourceFile} is about to be parsed.</p>
+         * @see Phase
+         * @see Phase.Info
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        protected static class StartingStateFound extends Info {
+
+            /**
+             * <p>Emits the {@link ParserAssert.StartingStateFound}.</p>
+             * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
+             */
+            protected static void Assert(final Phase phase, final SourceFile sourceFile, final String startState) {
+
+                phase.getListener().notify(NewInstanceOf(
+                        ParserAssert.StartingStateFound.class, phase, sourceFile, startState));
+
+            }
+
+            /**
+             * <p>{@link SourceFile}.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
+
+            /**
+             * <p>{@link String} value of the starting state for tree generation.</p>
+             * @since 0.1.0
+             * @see String
+             */
+            private final String startState;
+
+            /**
+             * <p>Constructs the {@link StartingStateFound} to its default state.</p>
+             * @param culprit The {@link Phase} instance that raised the error.
+             * @param sourceFile The {@link SourceFile} currently being parsed
+             * @param startState The {@link String} starting state for tree generation.
+             * @see Phase
+             * @see Info
+             * @since 0.1.0
+             */
+            protected StartingStateFound(final Phase culprit, final Object sourceFile, final String startState) {
+                super(culprit);
+
+                this.invalidFile = (SourceFile) sourceFile;
+                this.startState = startState;
+
+            }
+
+            @Override
+            public final String getMessage() {
+
+                return "Starting state found: " + this.startState;
+
+            }
+
+        }
+
+        /**
+         * <p>{@link Phase.Warning} to be emitted when a {@link SourceFile} is about to be parsed.</p>
+         * @see Phase
+         * @see Phase.Warning
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        protected static class DuplicateStartingStateFound extends Warning {
+
+            /**
+             * <p>Emits the {@link ParserAssert.DuplicateStartingStateFound}.</p>
+             * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
+             */
+            protected static void Assert(final Phase phase, final SourceFile sourceFile, final String startState) {
+
+                phase.getListener().notify(NewInstanceOf(
+                        ParserAssert.DuplicateStartingStateFound.class, phase, sourceFile, startState));
+
+            }
+
+            /**
+             * <p>{@link SourceFile}.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
+
+            /**
+             * <p>{@link String} value of the starting state for tree generation.</p>
+             * @since 0.1.0
+             * @see String
+             */
+            private final String startState;
+
+            /**
+             * <p>Constructs the {@link DuplicateStartingStateFound} to its default state.</p>
+             * @param culprit The {@link Phase} instance that raised the error.
+             * @param sourceFile The {@link SourceFile} currently being parsed
+             * @param startState The {@link String} starting state for tree generation.
+             * @see Phase
+             * @see Warning
+             * @since 0.1.0
+             */
+            protected DuplicateStartingStateFound(final Phase culprit, final Object sourceFile, final String startState) {
+                super(culprit);
+
+                this.invalidFile = (SourceFile) sourceFile;
+                this.startState = startState;
+
+            }
+
+            @Override
+            public final String getMessage() {
+
+                return "Additional start state found: " + this.startState;
+
+            }
+
+        }
+
+        /**
+         * <p>{@link Phase.Error} to be emitted when a {@link SourceFile} is about to be parsed.</p>
+         * @see Phase
+         * @see Phase.Error
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        protected static class NoStartStateFound extends Error {
+
+            /**
+             * <p>Emits the {@link ParserAssert.NoStartStateFound}.</p>
+             * @param phase The invoking {@link Phase}.
+             * @since 0.1.0
+             * @see Phase
+             */
+            protected static void Assert(final Phase phase, final SourceFile sourceFile) {
+
+                phase.getListener().notify(NewInstanceOf(ParserAssert.NoStartStateFound.class, phase, sourceFile));
+
+            }
+
+            /**
+             * <p>Invalid file.</p>
+             * @since 0.1.0
+             * @see SourceFile
+             */
+            private final SourceFile invalidFile;
+
+            /**
+             * <p>Constructs the {@link NoStartStateFound} to its default state.</p>
+             * @param culprit The {@link Phase} instance that raised the error.
+             * @see Phase
+             * @see Error
+             * @since 0.1.0
+             */
+            protected NoStartStateFound(final Phase culprit, final Object sourceFile) {
+                super(culprit);
+
+                this.invalidFile = (SourceFile) sourceFile;
+
+            }
+
+            @Override
+            public final String getMessage() {
+
+                return "No starting state found";
 
             }
 

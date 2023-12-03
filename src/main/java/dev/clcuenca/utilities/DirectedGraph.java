@@ -420,20 +420,17 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
      * {@link CombinationsCallback}.</p>
      * @param traceCallback The {@link CombinationsCallback} that receives each {@link DirectedGraph}
      *                             combination.
+     * @param root The starting vertex for generating combinations.
      * @since 1.0.0
      * @see CombinationsCallback
      */
-    public final void treeCombinations(final TraceCallback<LabelType> traceCallback) {
+    public final void treeCombinations(final TraceCallback<LabelType> traceCallback, final Type root) {
 
-        for(final Type vertex : this.adjacencyMatrix.keySet()) {
+        final Set<Type> visited = new LinkedHashSet<>();
 
-            final Set<Type> visited = new HashSet<>();
+        visited.add(root);
 
-            visited.add(vertex);
-
-            this.toTree(vertex, visited, new DirectedGraph<>(), traceCallback, new ArrayList<>());
-
-        }
+        this.toTree(root, visited, new DirectedGraph<>(), traceCallback, new ArrayList<>());
 
     }
 
@@ -441,12 +438,14 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
      * <p>Generates all tree combinations as {@link DirectedGraph}s from the minimum depth to the maximum depth;
      * &amp; passes each {@link DirectedGraph} via the specified {@link CombinationsCallback}.</p>
      * @param traceCallback The {@link TraceCallback} that receives each {@link DirectedGraph} combination.
+     * @param root The starting vertex for generating combinations.
      * @param minimumDepth The integer value of the minimum tree depth.
      * @param maximumDepth The integer value of the maximum tree depth.
      * @since 1.0.0
      * @see CombinationsCallback
      */
     public final void treeCombinations(final TraceCallback<LabelType> traceCallback,
+                                       final Type root,
                                        final int minimumDepth,
                                        final int maximumDepth)
             throws InvalidMaximumDepthException, InvalidMinimumDepthException {
@@ -457,16 +456,12 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
         if(minimumDepth < 0) throw new InvalidMinimumDepthException(minimumDepth);
         if(maximumDepth < 0) throw new InvalidMaximumDepthException(maximumDepth);
 
-        for(final Type vertex : this.adjacencyMatrix.keySet()) {
+        final Set<Type> visited = new LinkedHashSet<>();
 
-            final Set<Type> visited = new HashSet<>();
+        visited.add(root);
 
-            visited.add(vertex);
-
-            this.toTree(vertex, visited, new DirectedGraph<>(),
-                    traceCallback, new ArrayList<>(), minimum, maximum, 1);
-
-        }
+        this.toTree(root, visited, new DirectedGraph<>(),
+                traceCallback, new ArrayList<>(), minimum, maximum, 1);
 
     }
 

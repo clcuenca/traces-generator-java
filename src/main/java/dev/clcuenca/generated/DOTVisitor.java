@@ -94,4 +94,10 @@ public interface DOTVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIdentifier(DOTParser.IdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DOTParser#comments}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComments(DOTParser.CommentsContext ctx);
 }

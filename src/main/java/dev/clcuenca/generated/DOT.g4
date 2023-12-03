@@ -32,11 +32,11 @@
 grammar DOT;
 
 graph
-   : STRICT? ( GRAPH | DIGRAPH ) identifier? '{' statementList '}' EOF
+   : comments? STRICT? comments? ( GRAPH | DIGRAPH ) comments? identifier? comments? '{' statementList '}' comments? EOF
    ;
 
 statementList
-   : ( statement ';'? )*
+   : ( comments? statement comments? ';'? )*
    ;
 
 statement
@@ -85,6 +85,10 @@ subgraph
 
 identifier
    : ID | STRING | HTML_STRING | NUMBER
+   ;
+
+comments
+   : (LINE_COMMENT | COMMENT)+
    ;
 
 // "The keywords node, edge, graph, digraph, subgraph, and strict are
@@ -165,7 +169,7 @@ COMMENT
 
 
 LINE_COMMENT
-   : '//' .*? '\r'? '\n' -> skip
+   : '//' .*? '\r'? '\n'
    ;
 
 

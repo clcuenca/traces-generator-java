@@ -147,4 +147,14 @@ public interface DOTListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIdentifier(DOTParser.IdentifierContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DOTParser#comments}.
+	 * @param ctx the parse tree
+	 */
+	void enterComments(DOTParser.CommentsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DOTParser#comments}.
+	 * @param ctx the parse tree
+	 */
+	void exitComments(DOTParser.CommentsContext ctx);
 }

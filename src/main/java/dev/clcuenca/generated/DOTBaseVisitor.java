@@ -110,4 +110,11 @@ public class DOTBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements DO
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitIdentifier(DOTParser.IdentifierContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitComments(DOTParser.CommentsContext ctx) { return visitChildren(ctx); }
 }

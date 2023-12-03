@@ -73,7 +73,7 @@ public class GenerateCombinations extends Phase {
                 if(sourceFile.addTrace(trace) && GenerateCombinations.ShowGeneratedTraces)
                     GeneratorAssert.Generated.Assert(this, sourceFile, trace);
 
-            });
+            }, sourceFile.getStartingState());
 
         } else {
 
@@ -86,7 +86,7 @@ public class GenerateCombinations extends Phase {
                     if(sourceFile.addTrace(trace) && GenerateCombinations.ShowGeneratedTraces)
                         GeneratorAssert.Generated.Assert(this, sourceFile, trace);
 
-                }, MinimumDepth, MaximumDepth);
+                }, sourceFile.getStartingState(), MinimumDepth, MaximumDepth);
 
             } catch(final DirectedGraph.InvalidMaximumDepthException
                           | DirectedGraph.InvalidMinimumDepthException exception) {

@@ -60,6 +60,12 @@ public class SourceFile {
      */
     private DirectedGraph<String, String> directedGraph;
 
+    /**
+     * <p>The {@link String} starting state to begin tree generation.</p>
+     * @since 0.1.0
+     * @see String
+     */
+    private String startingState;
 
     /// ------------
     /// Constructors
@@ -76,6 +82,7 @@ public class SourceFile {
         this.traces = new LinkedHashSet<>();
         this.directedGraph = null;
         this.lastCompletedPhase = null;
+        this.startingState = null;
 
     }
 
@@ -149,6 +156,17 @@ public class SourceFile {
     }
 
     /**
+     * <p>Sets the {@link SourceFile}'s starting state for tree generation.</p>
+     * @param startingState {@link String} value of the starting state for tree generation.
+     * @see String
+     */
+    public final void setStartingState(final String startingState) {
+
+        this.startingState = startingState;
+
+    }
+
+    /**
      * <p>Aggregates the {@link String} trace to the {@link Set} of traces.</p>
      * @param trace The {@link String} value of the trace to aggregate.
      * @since 0.1.0
@@ -168,6 +186,18 @@ public class SourceFile {
     public final Set<String> getTraces() {
 
         return this.traces;
+
+    }
+
+    /**
+     * <p>Returns the {@link String} value of the starting state for tree generation.</p>
+     * @return {@link String} value of the starting state for tree generation.
+     * @since 0.1.0
+     * @see String
+     */
+    public final String getStartingState() {
+
+        return this.startingState;
 
     }
 

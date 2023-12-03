@@ -1,3 +1,4 @@
+// start 2
 digraph G {
   0 -> 4 [ label="write.0.0.0" ];
   1 -> 6 [ label="write.0.0.0" ];
@@ -12,5 +13,3 @@ digraph G {
   6 -> 7 [ label="read.0.1.0" ];
   7 -> 4 [ label="start_read.0.1" ];
 }
-
-// start state is 2

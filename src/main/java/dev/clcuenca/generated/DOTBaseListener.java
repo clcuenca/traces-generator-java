@@ -180,6 +180,18 @@ public class DOTBaseListener implements DOTListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIdentifier(DOTParser.IdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterComments(DOTParser.CommentsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComments(DOTParser.CommentsContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
