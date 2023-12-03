@@ -44,7 +44,7 @@ public class GenerateCombinations extends Phase {
      * @see Listener
      * @since 0.1.0
      */
-    public GenerateCombinations(Listener listener) {
+    public GenerateCombinations(final Listener listener) {
         super(listener);
     }
 

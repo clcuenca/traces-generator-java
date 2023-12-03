@@ -8,7 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -71,9 +71,9 @@ public class SourceFile {
      */
     public SourceFile(final String inputPath) {
 
-        this.completedPhases = new HashSet<>();
+        this.completedPhases = new LinkedHashSet<>();
         this.file = new File(inputPath);
-        this.traces = new HashSet<>();
+        this.traces = new LinkedHashSet<>();
         this.directedGraph = null;
         this.lastCompletedPhase = null;
 
