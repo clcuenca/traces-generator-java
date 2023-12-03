@@ -129,7 +129,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
 
             // Initialize a handle to the snapshot of the set of visited vertices
-            final Set<Type> visitedSnapshot = new HashSet<>(visited);
+            final Set<Type> visitedSnapshot = new LinkedHashSet<>(visited);
 
             // For each combination
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
@@ -187,7 +187,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
 
             // Initialize a handle to the snapshot of the set of visited vertices
-            final Set<Type> visitedSnapshot = new HashSet<>(visited);
+            final Set<Type> visitedSnapshot = new LinkedHashSet<>(visited);
 
             // For each combination
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
@@ -255,7 +255,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
 
             // Initialize a handle to the snapshot of the set of visited vertices
-            final Set<Type> visitedSnapshot = new HashSet<>(visited);
+            final Set<Type> visitedSnapshot = new LinkedHashSet<>(visited);
 
             // For each combination
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
@@ -319,7 +319,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
         for(int combination = 1; combination <= adjacentArray.length; combination++) {
 
             // Initialize a handle to the snapshot of the set of visited vertices
-            final Set<Type> visitedSnapshot = new HashSet<>(visited);
+            final Set<Type> visitedSnapshot = new LinkedHashSet<>(visited);
 
             // For each combination
             Algorithms.LexicographicCombinations(adjacentArray.length, combination, (final int[] indices) -> {
@@ -371,7 +371,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
 
         for(final Type vertex : this.adjacencyMatrix.keySet()) {
 
-            final Set<Type> visited = new HashSet<>();
+            final Set<Type> visited = new LinkedHashSet<>();
 
             visited.add(vertex);
 
@@ -403,7 +403,7 @@ public class DirectedGraph<Type, LabelType> implements Cloneable {
 
         for(final Type vertex : this.adjacencyMatrix.keySet()) {
 
-            final Set<Type> visited = new HashSet<>();
+            final Set<Type> visited = new LinkedHashSet<>();
 
             visited.add(vertex);
 
